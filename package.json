@@ -6,13 +6,13 @@
   "main": "server.js",
   "scripts": {
     "start:server": "node server.js",
-    "test:api": "start-server-and-test 'node server.js' http://localhost:3000 'npx playwright test'"
+    "test:api": "concurrently --kill-others \"node server.js\" \"npx playwright test tests/\""
   },
   "dependencies": {
     "fastify": "^5.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
-    "start-server-and-test": "^2.0.0"
+    "concurrently": "^10.0.5"
   }
 }

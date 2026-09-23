@@ -33,7 +33,7 @@ fastify.get('/api/users', async (request, reply) => {
 const start = async () => {
     try {
         await fastify.listen({ port: 3000, host: '127.0.0.1' });
-        console.log("🚀 Mock Production REST API running at http://localhost:3000");
+        console.log("🚀 Mock Production REST API running at http://127.0.0.1:3000");
     } catch (err) {
         process.exit(1);
     }
