@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start:server": "node server.js",
-    "test:api": "concurrently --kill-others \"node server.js\" \"npx playwright test tests/\""
+    "test:api": "concurrently --kill-others --success first \"node server.js\" \"npx playwright test tests/\""
   },
   "dependencies": {
     "fastify": "^5.0.0"
