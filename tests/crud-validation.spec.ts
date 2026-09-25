@@ -39,6 +39,26 @@ test.describe('REST API Integration Suite', () => {
         expect(firstUser.profile?.isActive).toBe(true);
     });
 
+        test('GET /users?isActive=true - Should successfully filter resources using query constraints', async ({ request }) => {
+        const response = await request.get('/api/users', {
+            headers: { 'Authorization': `Bearer ${sessionToken}` },
+            params: {
+                isActive: 'true'
+            }
+        });
+
+        expect(response.status()).toBe(200);
+        const payload = await response.json();
+
+        expect(payload.resultsCount).toBe(1);
+        expect(payload.data.length).toBe(1);
+        
+        const activeUser = payload.data[0];
+        expect(activeUser.id).toBe(201);
+        expect(activeUser.name).toBe("John Murphy");
+        expect(activeUser.profile?.isActive).toBe(true);
+    });
+
     test('POST /users - Should successfully instantiate a new user entity with 201 Created status', async ({ request }) => {
         const response = await request.post('/api/users', {
             headers: { 'Authorization': `Bearer ${sessionToken}` },
@@ -135,6 +155,24 @@ test.describe('REST API Integration Suite', () => {
         const payload = await response.json();
         expect(payload.error).toContain("Forbidden");
     });
+
+    test('GET /users?role=NonExistent - Should return 200 OK with an empty array when no records match the filter', async ({ request }) => {
+        const response = await request.get('/api/users', {
+            headers: { 'Authorization': `Bearer ${sessionToken}` },
+            params: {
+                role: 'CEO'
+            }
+        });
+
+        expect(response.status()).toBe(200);
+        const payload = await response.json();
+
+        expect(payload.status).toBe("SUCCESS");
+        expect(payload.resultsCount).toBe(0);
+        expect(Array.isArray(payload.data)).toBe(true);
+        expect(payload.data.length).toBe(0); // The array exists but is empty
+    });
+
 
     test('PUT /users/:id - Should return 404 Not Found when attempting to update a non-existent ID', async ({ request }) => {
         const response = await request.put('/api/users/9999', {
