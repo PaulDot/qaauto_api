@@ -1,4 +1,4 @@
-# Enterprise REST API Test Automation Showcase
+# REST API Test Automation Demo
 
 A self-contained REST API test automation sandbox built with **Playwright (TypeScript)** and **Fastify**. 
 

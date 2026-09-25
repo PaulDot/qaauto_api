@@ -22,11 +22,33 @@ fastify.get('/api/users', async (request, reply) => {
     if (authHeader !== "Bearer mock_secure_jwt_token_2026") {
         return reply.status(403).send({ error: "Forbidden: Invalid or missing token" });
     }
+
+    let filteredDatabase = mockUserDatabase;
+
+    // Loop through every query parameter provided in the URL
+    Object.keys(request.query).forEach(key => {
+        const queryValue = request.query[key];
+
+        filteredDatabase = filteredDatabase.filter(user => {
+            // Check top-level properties (e.g. user.name)
+            if (user[key] !== undefined) {
+                return String(user[key]) === queryValue;
+            }
+            
+            // Check nested profile properties (e.g. user.profile.isActive)
+            if (user.profile && user.profile[key] !== undefined) {
+                return String(user.profile[key]) === queryValue;
+            }
+
+            return true;
+        });
+    });
+
     return {
         status: "SUCCESS",
         page: 1,
-        resultsCount: mockUserDatabase.length,
-        data: mockUserDatabase
+        resultsCount: filteredDatabase.length,
+        data: filteredDatabase
     };
 });
 
