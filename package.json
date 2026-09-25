@@ -1,6 +1,6 @@
 {
   "name": "qaauto_api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "REST API Test Automation Examples",
   "main": "server.js",
