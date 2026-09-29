@@ -13,7 +13,7 @@ Instead, this project boots up a custom **in-memory Fastify application server**
 The framework contains a structured, sequential end-to-end integration story mapping complete positive CRUD lifecycles and negative edge cases.
 
 ## 🚀 Local Execution
-Ensure you have Node.js installed, then clone the directory and run the unified parallel pipeline script:
+Ensure you have [Node.js](https://nodejs.org/en/download) installed, then clone the directory and run the unified parallel pipeline script:
 
 ```bash
 # Install framework dependencies

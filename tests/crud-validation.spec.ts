@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('REST API Integration Suite', () => {
     let sessionToken: string;
 
-    test.beforeAll(async ({request}) => {
+    test.beforeAll(async ({ request }) => {
         const response = await request.post(`/api/login`, {
             data: {
                 email: 'qa_engineer@example.com',
