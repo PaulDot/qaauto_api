@@ -10,7 +10,7 @@ As this is a demo piece I didn't want to depend on a public sandbox API which ca
 Instead, this project boots up a custom **in-memory Fastify application server** locally on port 3000 before running assertions, and tears it down automatically when execution ends.
 
 ## 🧪 Automated Test Coverage
-The framework contains a structured, sequential end-to-end integration story mapping complete positive CRUD lifecycles and negative edge cases.
+The framework contains a structured, sequential end-to-end integration story mapping complete positive CRUD lifecycles, negative edge cases, api performance and contract validation.
 
 ## 🚀 Local Execution
 Ensure you have [Node.js](https://nodejs.org/en/download) installed, then clone the directory and run the unified parallel pipeline script:
