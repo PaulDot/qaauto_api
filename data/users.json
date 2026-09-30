@@ -1,0 +1,7 @@
+[
+    { "id": 201, "name": "John Murphy", "profile": { "role": "Senior Engineer", "isActive": true } },
+    { "id": 202, "name": "Alan O'Brien", "profile": { "role": "Product Owner", "isActive": false } },
+    { "id": 203, "name": "Rebecca Johnson", "profile": { "role": "QA Lead", "isActive": true } },
+    { "id": 204, "name": "Fiona Gallagher", "profile": { "role": "Frontend Developer", "isActive": true } },
+    { "id": 205, "name": "Ciaran Byrne", "profile": { "role": "DevOps Engineer", "isActive": false } }
+]

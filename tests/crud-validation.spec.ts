@@ -3,7 +3,10 @@ import { test, expect } from '@playwright/test';
 test.describe('REST API Integration Suite', () => {
     let sessionToken: string;
 
-    test.beforeAll(async ({ request }) => {
+    test.beforeEach(async ({ request }) => {
+        const resetResponse = await request.post('/api/test/reset');
+        expect(resetResponse.status()).toBe(200);
+
         const response = await request.post(`/api/login`, {
             data: {
                 email: 'qa_engineer@example.com',
@@ -30,7 +33,9 @@ test.describe('REST API Integration Suite', () => {
 
         expect(payload.status).toBe("SUCCESS");
         expect(Array.isArray(payload.data)).toBe(true);
-        expect(payload.data.length).toBe(2);
+        
+        expect(payload.metadata.totalRecords).toBe(5); 
+        expect(payload.data.length).toBe(5);
 
         const firstUser = payload.data[0];
         expect(firstUser.id).toBe(201);
@@ -50,8 +55,8 @@ test.describe('REST API Integration Suite', () => {
         expect(response.status()).toBe(200);
         const payload = await response.json();
 
-        expect(payload.resultsCount).toBe(1);
-        expect(payload.data.length).toBe(1);
+        expect(payload.metadata.totalRecords).toBe(3); 
+        expect(payload.data.length).toBe(3);
         
         const activeUser = payload.data[0];
         expect(activeUser.id).toBe(201);
@@ -71,7 +76,7 @@ test.describe('REST API Integration Suite', () => {
         expect(response.status()).toBe(201);  // 201 expected for creation
         const payload = await response.json();
 
-        expect(payload.id).toBe(203);
+        expect(payload.id).toBe(206);
         expect(payload.name).toBe("Kate Smith");
         expect(payload.profile?.role).toBe("QA Lead");
         expect(payload.profile?.isActive).toBe(true);
@@ -129,7 +134,7 @@ test.describe('REST API Integration Suite', () => {
         // Assert that user ID 202 is absent from the returned data
         const userExists = payload.data.some((user: any) => user.id === 202);
         expect(userExists).toBe(false); 
-        expect(payload.resultsCount).toBe(1);
+        expect(payload.metadata.totalRecords).toBe(4);
     });
 
     test('POST /api/login - Should return 401 Unauthorized when credentials are invalid', async ({ request }) => {
@@ -168,7 +173,7 @@ test.describe('REST API Integration Suite', () => {
         const payload = await response.json();
 
         expect(payload.status).toBe("SUCCESS");
-        expect(payload.resultsCount).toBe(0);
+        expect(payload.metadata.totalRecords).toBe(0);
         expect(Array.isArray(payload.data)).toBe(true);
         expect(payload.data.length).toBe(0); // The array exists but is empty
     });
