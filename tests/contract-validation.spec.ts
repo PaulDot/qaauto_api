@@ -15,8 +15,14 @@ const UserRecordSchema = z.object({
 
 const GetUsersResponseSchema = z.object({
     status: z.string(),
-    page: z.number().int(),
-    resultsCount: z.number().int(),
+    metadata: z.object({
+        currentPage: z.number().int(),
+        limitPerPage: z.number().int(),
+        totalRecords: z.number().int(),
+        totalPages: z.number().int(),
+        hasNextPage: z.boolean(),
+        hasPreviousPage: z.boolean()
+    }),
     data: z.array(UserRecordSchema) // Guarantees every element in the array matches the contract
 });
 

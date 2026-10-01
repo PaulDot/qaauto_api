@@ -1,10 +1,14 @@
 import Fastify from 'fastify';
+import fs from 'fs';
+
 const fastify = Fastify({ logger: false });
 
-let mockUserDatabase = [
-    { id: 201, name: "John Murphy", profile: { role: "Senior Engineer", isActive: true } },
-    { id: 202, name: "Alan O'Brien", profile: { role: "Product Owner", isActive: false } }
-];
+let mockUserDatabase = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
+
+fastify.post('/api/test/reset', async (request, reply) => {
+    mockUserDatabase = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
+    return { status: "RESET_SUCCESSFUL" };
+});
 
 fastify.post('/api/login', async (request, reply) => {
     const { email, password } = request.body || {};
@@ -23,10 +27,16 @@ fastify.get('/api/users', async (request, reply) => {
         return reply.status(403).send({ error: "Forbidden: Invalid or missing token" });
     }
 
+    // for pagination:
+    const page = parseInt(request.query.page, 10) || 1;
+    const limit = parseInt(request.query.limit, 10) || 10;
+
     let filteredDatabase = mockUserDatabase;
 
     // Loop through every query parameter provided in the URL
     Object.keys(request.query).forEach(key => {
+        if (key === 'page' || key === 'limit') return;  // skip for pagination params
+
         const queryValue = request.query[key];
 
         filteredDatabase = filteredDatabase.filter(user => {
@@ -44,11 +54,24 @@ fastify.get('/api/users', async (request, reply) => {
         });
     });
 
+    const totalRecords = filteredDatabase.length;
+    const totalPages = Math.ceil(totalRecords / limit) || 1;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const paginatedData = filteredDatabase.slice(startIndex, endIndex);
+
     return {
         status: "SUCCESS",
-        page: 1,
-        resultsCount: filteredDatabase.length,
-        data: filteredDatabase
+        metadata: {
+            currentPage: page,
+            limitPerPage: limit,
+            totalRecords: totalRecords,
+            totalPages: totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1
+        },
+        data: paginatedData
     };
 });
 
@@ -63,12 +86,22 @@ fastify.post('/api/users', async (request, reply) => {
         return reply.status(400).send({ error: "Bad Request: Missing name or role parameter" });
     }
 
-    // Mock response mimicking a database insert generating a new ID
-    return reply.status(201).send({
-        id: 203,
+    const highestId = mockUserDatabase.reduce((max, user) => user.id > max ? user.id : max, 0);
+    const newId = highestId + 1;
+
+    const newUser = {
+        id: newId,
         name,
-        profile: { role, isActive: true, createdAt: "2026-09-24" }
-    });
+        profile: {
+            role,
+            isActive: true
+        }
+    };
+
+    // Push the new user into in-memory array database
+    mockUserDatabase.push(newUser);
+
+    return reply.status(201).send(newUser);
 });
 
 fastify.put('/api/users/:id', async (request, reply) => {
