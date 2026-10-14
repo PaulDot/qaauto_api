@@ -1,13 +1,56 @@
 import Fastify from 'fastify';
 import fs from 'fs';
+import { DatabaseSync } from 'node:sqlite'; 
 
 const fastify = Fastify({ logger: false });
+const DB_PATH = './data/system_status.db';
+
+// For github actions, ensure the data directory exists before SQL boots up
+if (!fs.existsSync('./data')) {
+    fs.mkdirSync('./data', { recursive: true });
+}
+
+const db = new DatabaseSync(DB_PATH);
+db.exec(`
+    CREATE TABLE IF NOT EXISTS platform_status (
+        service_name TEXT PRIMARY KEY,
+        is_operational INTEGER,
+        version TEXT
+    )
+`);
+db.close();
 
 let mockUserDatabase = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
 
 fastify.post('/api/test/reset', async (request, reply) => {
     mockUserDatabase = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
+    
+    const conn = new DatabaseSync(DB_PATH);
+    conn.exec("DELETE FROM platform_status");
+    
+    const insertStmt = conn.prepare("INSERT INTO platform_status VALUES (?, ?, ?)");
+    insertStmt.run('user-service', 1, 'v1.4.0');
+    insertStmt.run('payment-gateway', 0, 'v3.1.2');
+    conn.close();
+
     return { status: "RESET_SUCCESSFUL" };
+});
+
+fastify.get('/api/system/status', async (request, reply) => {
+    const authHeader = request.headers.authorization;
+    if (authHeader !== "Bearer mock_secure_jwt_token_2026") {
+        return reply.status(403).send({ error: "Forbidden" });
+    }
+
+    const conn = new DatabaseSync(DB_PATH);
+    const query = conn.prepare("SELECT * FROM platform_status");
+    const rows = query.all();
+    conn.close();
+
+    return {
+        status: "SUCCESS",
+        services: rows
+    };
 });
 
 fastify.post('/api/login', async (request, reply) => {
