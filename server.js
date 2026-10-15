@@ -3,6 +3,9 @@ import fs from 'fs';
 import { DatabaseSync } from 'node:sqlite'; 
 
 const fastify = Fastify({ logger: false });
+
+// Parsing json file for user info. Creating SQL table for mock platform_status info.
+let mockUserDatabase = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
 const DB_PATH = './data/system_status.db';
 
 // For github actions, ensure the data directory exists before SQL boots up
@@ -19,8 +22,6 @@ db.exec(`
     )
 `);
 db.close();
-
-let mockUserDatabase = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
 
 fastify.post('/api/test/reset', async (request, reply) => {
     mockUserDatabase = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
